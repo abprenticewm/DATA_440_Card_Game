@@ -4,9 +4,6 @@ import json
 import os
 from pathlib import Path
 
-# ==============================
-# CONFIG
-# ==============================
 # save files in data folder
 DECKS_DIR = os.path.join("data", "decks_chunks")
 RESULTS_FILE = os.path.join("data", "results.csv")
@@ -16,9 +13,6 @@ PROGRESS_FILE = os.path.join("data", "progress.json")
 DECK_SIZE_BITS = 52
 BYTES_PER_DECK = (DECK_SIZE_BITS + 7) // 8
 
-# ==============================
-# MATCHUPS
-# ==============================
 # hard code possible options for players
 SEQUENCES = [
     "000", "001", "010", "011",
@@ -29,9 +23,6 @@ SEQUENCES = [
 MATCHUPS = [(p1, p2) for i, p1 in enumerate(SEQUENCES) for j, p2 in enumerate(SEQUENCES) if i != j]
 
 
-# ==============================
-# PROGRESS
-# ==============================
 def load_progress():
     # load progress from json file if it exists
     if Path(PROGRESS_FILE).exists():
@@ -45,9 +36,6 @@ def save_progress(progress):
         json.dump(progress, f)
 
 
-# ==============================
-# RESULTS
-# ==============================
 def load_results():
     results = {}
     # load results from csv file if it exists
@@ -89,9 +77,6 @@ def save_results(results):
             })
 
 
-# ==============================
-# DECK READING
-# ==============================
 # read one deck file and return list of strings
 def read_decks_from_file(filename):
     decks = []
@@ -104,9 +89,6 @@ def read_decks_from_file(filename):
     return decks
 
 
-# ==============================
-# GAME LOGIC
-# ==============================
 # play through a single deck and return winner
 def play_deck(deck_bits, p1_seq, p2_seq):
     i = 0
@@ -147,9 +129,6 @@ def play_deck(deck_bits, p1_seq, p2_seq):
     return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
 
 
-# ==============================
-# MAIN
-# ==============================
 def main():
     # Load progress
     progress = load_progress()

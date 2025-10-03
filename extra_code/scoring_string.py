@@ -12,10 +12,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DECKS_DIR = os.path.join(BASE_DIR, "data", "decks_chunks")
 
 # where results are saved
-RESULTS_FILE = os.path.join(BASE_DIR, "data", "results_bit.csv")
+RESULTS_FILE = os.path.join(BASE_DIR, "data", "results_string.csv")
 
 # where progress is tracked
-PROGRESS_FILE = os.path.join(BASE_DIR, "data", "progres_bit.json")
+PROGRESS_FILE = os.path.join(BASE_DIR, "data", "progres_string.json")
 
 # number of bits per deck
 DECK_SIZE_BITS = 52
@@ -97,36 +97,56 @@ def read_decks_from_file(filename):
 
 
 def play_deck(deck_bits, p1_seq, p2_seq):
-    # simulate one game with given deck
-    i = 0
     n = len(deck_bits)
     p1_tricks = p2_tricks = 0
     p1_cards = p2_cards = 0
 
-    # scan through deck
-    while i <= n - 3:
+    # scan deck without restarting
+    for i in range(n - 2):
         window = deck_bits[i:i+3]
         if window == p1_seq:
             p1_tricks += 1
-            p1_cards += (i + 3)   # count cards used
-            deck_bits = deck_bits[i+3:]  # shorten deck
-            n = len(deck_bits)
-            i = 0
-            continue
+            p1_cards += (i + 3)  # position + length of match
         elif window == p2_seq:
             p2_tricks += 1
             p2_cards += (i + 3)
-            deck_bits = deck_bits[i+3:]
-            n = len(deck_bits)
-            i = 0
-            continue
-        i += 1
 
     # check draws
     draws_tricks = 1 if p1_tricks == p2_tricks else 0
     draws_cards = 1 if p1_cards == p2_cards else 0
 
     return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
+
+    # # simulate one game with given deck
+    # i = 0
+    # n = len(deck_bits)
+    # p1_tricks = p2_tricks = 0
+    # p1_cards = p2_cards = 0
+
+    # # scan through deck
+    # while i <= n - 3:
+    #     window = deck_bits[i:i+3]
+    #     if window == p1_seq:
+    #         p1_tricks += 1
+    #         p1_cards += (i + 3)   # count cards used
+    #         deck_bits = deck_bits[i+3:]  # shorten deck
+    #         n = len(deck_bits)
+    #         i = 0
+    #         continue
+    #     elif window == p2_seq:
+    #         p2_tricks += 1
+    #         p2_cards += (i + 3)
+    #         deck_bits = deck_bits[i+3:]
+    #         n = len(deck_bits)
+    #         i = 0
+    #         continue
+    #     i += 1
+
+    # # check draws
+    # draws_tricks = 1 if p1_tricks == p2_tricks else 0
+    # draws_cards = 1 if p1_cards == p2_cards else 0
+
+    # return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
 
 
 def main():

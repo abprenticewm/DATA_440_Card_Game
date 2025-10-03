@@ -84,8 +84,39 @@ def read_decks_from_file(filename):
     return decks
 
 # play one deck
+# def play_deck(deck_int, p1_seq, p2_seq):
+#     i = 0
+#     n = DECK_SIZE_BITS
+#     p1_tricks = p2_tricks = 0
+#     p1_cards = p2_cards = 0
+
+#     p1_bits = int(p1_seq, 2)
+#     p2_bits = int(p2_seq, 2)
+
+#     while i <= n - 3:
+#         window = (deck_int >> (n - 3 - i)) & 0b111
+#         if window == p1_bits:
+#             p1_tricks += 1
+#             p1_cards += (i + 3)
+#             n -= (i + 3)
+#             deck_int &= (1 << n) - 1
+#             i = 0
+#             continue
+#         elif window == p2_bits:
+#             p2_tricks += 1
+#             p2_cards += (i + 3)
+#             n -= (i + 3)
+#             deck_int &= (1 << n) - 1
+#             i = 0
+#             continue
+#         i += 1
+
+#     draws_tricks = 1 if p1_tricks == p2_tricks else 0
+#     draws_cards = 1 if p1_cards == p2_cards else 0
+
+#     return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
+
 def play_deck(deck_int, p1_seq, p2_seq):
-    i = 0
     n = DECK_SIZE_BITS
     p1_tricks = p2_tricks = 0
     p1_cards = p2_cards = 0
@@ -93,23 +124,14 @@ def play_deck(deck_int, p1_seq, p2_seq):
     p1_bits = int(p1_seq, 2)
     p2_bits = int(p2_seq, 2)
 
-    while i <= n - 3:
+    for i in range(n - 2):  # slide window across all positions
         window = (deck_int >> (n - 3 - i)) & 0b111
         if window == p1_bits:
             p1_tricks += 1
-            p1_cards += (i + 3)
-            n -= (i + 3)
-            deck_int &= (1 << n) - 1
-            i = 0
-            continue
+            p1_cards += 3
         elif window == p2_bits:
             p2_tricks += 1
-            p2_cards += (i + 3)
-            n -= (i + 3)
-            deck_int &= (1 << n) - 1
-            i = 0
-            continue
-        i += 1
+            p2_cards += 3
 
     draws_tricks = 1 if p1_tricks == p2_tricks else 0
     draws_cards = 1 if p1_cards == p2_cards else 0

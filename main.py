@@ -1,6 +1,6 @@
 from src.data_generation import run_generation
 import src.scoring_bit
-# import src.scoring_string
+# import DATA_440_Card_Game.extra_code.scoring_string
 import os
 
 N_RUNS = 3  # number of times to run scoring
@@ -14,7 +14,7 @@ def main():
     for i in range(N_RUNS):
         print(f"\n=== Scoring run {i+1}/{N_RUNS} ===")
         src.scoring_bit.main()
-        # src.scoring_string.main()
+        # DATA_440_Card_Game.extra_code.scoring_string.main()
 
 if __name__ == "__main__":
     main()

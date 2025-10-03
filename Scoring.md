@@ -9,6 +9,7 @@ Here is the comparison between the methods:
 Bits:
 One deck: 
 * Runtime: 0.43 seconds | Peak memory: 0.57 MB
+  
 Three deck files: 
 * Runtime: 1.26 seconds | Peak memory: 0.57 MB
 * Runtime: 1.26 seconds | Peak memory: 0.56 MB
@@ -17,6 +18,7 @@ Three deck files:
 Strings:
 One deck: 
 * Runtime: 0.30 seconds | Peak memory: 1.23 MB
+  
 Three deck files: 
 * Runtime: 0.95 seconds | Peak memory: 1.23 MB
 * Runtime: 0.96 seconds | Peak memory: 1.22 MB

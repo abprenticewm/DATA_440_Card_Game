@@ -97,56 +97,36 @@ def read_decks_from_file(filename):
 
 
 def play_deck(deck_bits, p1_seq, p2_seq):
+    # # simulate one game with given deck
+    i = 0
     n = len(deck_bits)
     p1_tricks = p2_tricks = 0
     p1_cards = p2_cards = 0
 
-    # scan deck without restarting
-    for i in range(n - 2):
+    # scan through deck
+    while i <= n - 3:
         window = deck_bits[i:i+3]
         if window == p1_seq:
             p1_tricks += 1
-            p1_cards += (i + 3)  # position + length of match
+            p1_cards += (i + 3)   # count cards used
+            deck_bits = deck_bits[i+3:]  # shorten deck
+            n = len(deck_bits)
+            i = 0
+            continue
         elif window == p2_seq:
             p2_tricks += 1
             p2_cards += (i + 3)
+            deck_bits = deck_bits[i+3:]
+            n = len(deck_bits)
+            i = 0
+            continue
+        i += 1
 
     # check draws
     draws_tricks = 1 if p1_tricks == p2_tricks else 0
     draws_cards = 1 if p1_cards == p2_cards else 0
 
     return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
-
-    # # simulate one game with given deck
-    # i = 0
-    # n = len(deck_bits)
-    # p1_tricks = p2_tricks = 0
-    # p1_cards = p2_cards = 0
-
-    # # scan through deck
-    # while i <= n - 3:
-    #     window = deck_bits[i:i+3]
-    #     if window == p1_seq:
-    #         p1_tricks += 1
-    #         p1_cards += (i + 3)   # count cards used
-    #         deck_bits = deck_bits[i+3:]  # shorten deck
-    #         n = len(deck_bits)
-    #         i = 0
-    #         continue
-    #     elif window == p2_seq:
-    #         p2_tricks += 1
-    #         p2_cards += (i + 3)
-    #         deck_bits = deck_bits[i+3:]
-    #         n = len(deck_bits)
-    #         i = 0
-    #         continue
-    #     i += 1
-
-    # # check draws
-    # draws_tricks = 1 if p1_tricks == p2_tricks else 0
-    # draws_cards = 1 if p1_cards == p2_cards else 0
-
-    # return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
 
 
 def main():

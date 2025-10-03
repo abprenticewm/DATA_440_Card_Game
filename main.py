@@ -1,6 +1,6 @@
 from src.data_generation import run_generation
 import src.scoring_bit
-# import DATA_440_Card_Game.extra_code.scoring_string
+import DATA_440_Card_Game.extra_code.scoring_string
 import os
 
 N_RUNS = 3  # number of times to run scoring

@@ -1,4 +1,4 @@
-from data_generation import run_generation, read_decks #import methods from main file 
+from data_gen import run_generation, read_decks #import methods from main file 
 import statistics #for calculations 
 
 N_RUNS = 10 #to make sure data is generlized, may change this number 

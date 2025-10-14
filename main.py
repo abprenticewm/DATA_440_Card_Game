@@ -1,20 +1,31 @@
-from src.data_generation import run_generation
-import src.scoring_bit
-import DATA_440_Card_Game.extra_code.scoring_string
-import os
+from src.data_gen import generate_decks
+import src.scoring  # import the whole scoring module
+from src.viz import generate_heatmaps 
 
-N_RUNS = 3  # number of times to run scoring
+# main script to augment data, score, and visualize
+def augment_data():
+    # get user input for number of new decks
+    try:
+        n = int(input("How many new decks would you like to generate? "))
+        if n <= 0:
+            print("Please enter a positive number.")
+            return
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+        return
 
-def main():
-    # generate decks once
-    stats = run_generation()
-    print(f"Generated {len(stats['files'])} deck files into data/decks_chunks.")
+    # generate decks
+    generate_decks(n)
+    print("Deck generation completed.")
 
-    # run scoring multiple times
-    for i in range(N_RUNS):
-        print(f"\n=== Scoring run {i+1}/{N_RUNS} ===")
-        src.scoring_bit.main()
-        # DATA_440_Card_Game.extra_code.scoring_string.main()
+    # run scoring
+    src.scoring.main()
+    print("Scoring completed.")
+
+    # generate heatmaps
+    generate_heatmaps()
+    print("Heatmaps created.")
+
 
 if __name__ == "__main__":
-    main()
+    augment_data()

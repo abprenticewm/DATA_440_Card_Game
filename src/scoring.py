@@ -35,13 +35,10 @@ def save_progress(progress):
 
 # results
 def load_results():
-    # load results into dictionary
     results = {}
     if Path(RESULTS_FILE).exists():
-        # if file exists, load existing results
         with open(RESULTS_FILE, newline="") as f:
             reader = csv.DictReader(f)
-            # match sequences to results
             for row in reader:
                 key = (row["p1_seq"], row["p2_seq"])
                 results[key] = {
@@ -57,14 +54,12 @@ def load_results():
 
 # save results to csv
 def save_results(results):
-    # column names
     fieldnames = [
         "p1_seq", "p2_seq",
         "p1_tricks", "p2_tricks", "draws_tricks",
         "p1_cards", "p2_cards", "draws_cards",
         "runs",
     ]
-    # write results back to CSV
     with open(RESULTS_FILE, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
@@ -79,21 +74,20 @@ def read_decks_from_file(filename):
             decks.append(int.from_bytes(chunk, "big"))
     return decks
 
-# play deck
+# play one deck
 def play_deck(deck_int, p1_seq, p2_seq):
-    # initialize variables
     i = 0
     n = DECK_SIZE_BITS
     p1_tricks = p2_tricks = 0
     p1_cards = p2_cards = 0
-    # convert sequences to integers for bitwise comparison
+
     p1_bits = int(p1_seq, 2)
     p2_bits = int(p2_seq, 2)
 
-    # scan through deck
+    # play through the deck
     while i <= n - 3:
         window = (deck_int >> (n - 3 - i)) & 0b111
-        # if match found for player 1 or player 2
+
         if window == p1_bits:
             p1_tricks += 1
             p1_cards += (i + 3)
@@ -101,7 +95,6 @@ def play_deck(deck_int, p1_seq, p2_seq):
             deck_int &= (1 << n) - 1
             i = 0
             continue
-        # else if match found for player 2
         elif window == p2_bits:
             p2_tricks += 1
             p2_cards += (i + 3)
@@ -109,44 +102,51 @@ def play_deck(deck_int, p1_seq, p2_seq):
             deck_int &= (1 << n) - 1
             i = 0
             continue
+
         i += 1
 
-    # count remaining cards as draws
-    draws_tricks = 1 if p1_tricks == p2_tricks else 0
-    draws_cards = 1 if p1_cards == p2_cards else 0
+    # determine deck winners (1 per deck)
+    if p1_tricks > p2_tricks:
+        tricks_winner = "p1"
+    elif p2_tricks > p1_tricks:
+        tricks_winner = "p2"
+    else:
+        tricks_winner = "draw"
 
-    return p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards
+    if p1_cards > p2_cards:
+        cards_winner = "p1"
+    elif p2_cards > p1_cards:
+        cards_winner = "p2"
+    else:
+        cards_winner = "draw"
+
+    return tricks_winner, cards_winner
 
 # main loop
 def main():
-    # keep track of progress
     progress = load_progress()
     file_index = progress.get("file_index", 0)
-
     results = load_results()
 
-    # locate deck file
     deck_files = sorted([f for f in os.listdir(DECKS_DIR) if f.startswith("decks_seed") and f.endswith(".bin")])
     total_files = len(deck_files)
-    # if no more files, exit
+
     if file_index >= total_files:
         print("All deck files have been processed. Done!")
         return
 
-    # start runtime + memory
     start_time = time.perf_counter()
     tracemalloc.start()
 
-    # process remaining files
     for fi in range(file_index, total_files):
         decks_file = os.path.join(DECKS_DIR, deck_files[fi])
         decks = read_decks_from_file(decks_file)
         print(f"Processing file {fi+1}/{total_files}: {decks_file} ({len(decks)} decks)")
-        # loop through all decks
+
         for deck_int in decks:
             p1_seq, p2_seq = random.choice(MATCHUPS)
-            # store results in dictionary
             key = (p1_seq, p2_seq)
+
             if key not in results:
                 results[key] = {
                     "p1_tricks": 0,
@@ -157,27 +157,34 @@ def main():
                     "draws_cards": 0,
                     "runs": 0,
                 }
-            # update results
-            p1_tricks, p2_tricks, draws_tricks, p1_cards, p2_cards, draws_cards = play_deck(deck_int, p1_seq, p2_seq)
-            results[key]["p1_tricks"] += p1_tricks
-            results[key]["p2_tricks"] += p2_tricks
-            results[key]["draws_tricks"] += draws_tricks
-            results[key]["p1_cards"] += p1_cards
-            results[key]["p2_cards"] += p2_cards
-            results[key]["draws_cards"] += draws_cards
+
+            tricks_winner, cards_winner = play_deck(deck_int, p1_seq, p2_seq)
+
+            # increment win counts
+            if tricks_winner == "p1":
+                results[key]["p1_tricks"] += 1
+            elif tricks_winner == "p2":
+                results[key]["p2_tricks"] += 1
+            else:
+                results[key]["draws_tricks"] += 1
+
+            if cards_winner == "p1":
+                results[key]["p1_cards"] += 1
+            elif cards_winner == "p2":
+                results[key]["p2_cards"] += 1
+            else:
+                results[key]["draws_cards"] += 1
+
             results[key]["runs"] += 1
 
-        # update progress after each file
         progress["file_index"] = fi + 1
         save_progress(progress)
         save_results(results)
         print(f"Finished file {fi+1}/{total_files}")
 
-    # end runtime + memory
     elapsed = time.perf_counter() - start_time
     current, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
-    # print stats
     print(f"All files processed. Runtime: {elapsed:.2f}s | Peak memory: {peak / (1024*1024):.2f} MB")
 
 if __name__ == "__main__":

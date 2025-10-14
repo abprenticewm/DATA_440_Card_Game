@@ -70,22 +70,29 @@ def generate_heatmaps():
     labels_tricks = make_labels(win_tricks, draw_tricks)
     labels_cards = make_labels(win_cards, draw_cards)
 
+    # plotting function
     def plot_heatmap(data, labels, title, filename):
-        # mask for diagonal blanks
-        mask_diag = np.zeros_like(data, dtype=bool)
-        for i, seq in enumerate(SEQUENCES):
-            mask_diag[i, i] = True
+        # reorder data so BBB is in top left and RRR is in bottom right
+        reordered_rows = SEQUENCES 
+        reordered_cols = SEQUENCES 
+        # this is the only fix i could find to ensure correct ordering
+        reordered_data = data.loc[reordered_rows, reordered_cols]
+        reordered_labels = labels.loc[reordered_rows, reordered_cols]
 
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(7, 7))
 
-        # use dynamic min/max for darker colors based on dataset
-        vmax = np.nanmax(data.values)
-        vmin = np.nanmin(data.values)
+        # color scale for min and max vals
+        vmax = np.nanmax(reordered_data.values)
+        vmin = np.nanmin(reordered_data.values)
 
-        # main heatmap without diagonal
+        # mask diagonal
+        mask_diag = np.zeros_like(reordered_data, dtype=bool)
+        np.fill_diagonal(mask_diag, True)
+
+        # main heatmap
         ax = sns.heatmap(
-            data,
-            annot=labels,
+            reordered_data,
+            annot=reordered_labels,
             fmt="",
             cmap="Blues",
             linewidths=0.5,
@@ -96,10 +103,14 @@ def generate_heatmaps():
             cbar=False
         )
 
-        # gray diagonal
+        # make diagonal gray
+        diag_only = np.zeros_like(reordered_data, dtype=bool)
+        diag_only[:] = True
+        np.fill_diagonal(diag_only, False)
+        # overlay gray heatmap on diagonal
         sns.heatmap(
-            data,
-            mask=~mask_diag,
+            reordered_data,
+            mask=diag_only,
             cmap=sns.color_palette(["lightgray"]),
             linewidths=0.5,
             linecolor="gray",
@@ -107,35 +118,39 @@ def generate_heatmaps():
             ax=ax
         )
 
-        # flip both axes so top-right = BBB - was flipped before
-        ax.invert_yaxis()
-        ax.invert_xaxis()
+        # labels
+        ax.set_xticklabels([seq_to_br(seq) for seq in reordered_cols], fontsize=10)
+        ax.set_yticklabels([seq_to_br(seq) for seq in reordered_rows], fontsize=10)
 
-        # axis labels B/R - was 0/1 before
-        ax.set_xticklabels([seq_to_br(c) for c in data.columns])
-        ax.set_yticklabels([seq_to_br(r) for r in data.index])
-
-        # format heatmap
         ax.set_title(title, fontsize=14, pad=15)
         ax.set_xlabel("My Choice (P1)", fontsize=12)
         ax.set_ylabel("Opponent Choice (P2)", fontsize=12)
         ax.tick_params(axis='x', rotation=45)
         ax.tick_params(axis='y', rotation=0)
 
-        # highlight best per row (skip diagonal)
-        for y, seq in enumerate(SEQUENCES):
-            row_vals = data.loc[seq]
+        # highlight highest per row
+        for y, seq_row in enumerate(reordered_rows):
+            row_vals = reordered_data.loc[seq_row].copy()
+            # ignore the diagonal cell
+            row_vals.loc[seq_row] = np.nan
             if row_vals.isna().all():
                 continue
-            # find max value in row
-            max_val = row_vals.max()
-            # highlight all max probs
-            for x_idx, x_seq in enumerate(SEQUENCES):
-                if pd.notna(row_vals[x_seq]) and row_vals[x_seq] == max_val and seq != x_seq:
-                    ax.add_patch(plt.Rectangle((x_idx, y), 1, 1, fill=False, edgecolor="black", lw=2))
-
-        # plot and save
+            max_val = row_vals.max(skipna=True)
+            # find all columns with this max value
+            x_indices = [reordered_cols.index(col) for col, val in row_vals.items() if val == max_val]
+            for xi in x_indices:
+                rect = plt.Rectangle(
+                    (xi, y),
+                    1, 1,
+                    fill=False,
+                    edgecolor="black",
+                    lw=3,
+                    zorder=20
+                )
+                ax.add_patch(rect)
+        # save figure
         plt.tight_layout()
+        plt.subplots_adjust(right=0.95)
         plt.savefig(os.path.join(OUT_DIR, filename), format="svg")
         plt.close()
         print(f"Saved {filename}")

@@ -7,24 +7,21 @@ In this project, two players each choose a sequence of coin flips composed of **
 ## Game Variants
 
 ### 1. Penney’s Game
-In the original **Penney’s Game**, a fair coin is flipped repeatedly until one player’s sequence appears. The first sequence to occur wins.  
-Despite the apparent symmetry, some sequences have a **statistical advantage** depending on the opponent’s choice. This creates a fascinating nontransitive cycle of dominance among sequences.
+In the original **Penney’s Game**, a fair coin is flipped repeatedly until one player’s sequence appears. The first sequence to occur wins. Despite the apparent symmetry, some sequences have a **statistical advantage** depending on the opponent’s choice. This creates a nontransitive cycle of dominance among sequences.
 
 ---
 
 ### 2. The Humble–Nishiyama Variant
-The **Humble–Nishiyama Game** changes the rules by flipping through a full deck of coin outcomes rather than stopping early.  
-Each player earns one point (“**trick**”) every time their sequence appears in the deck. The player with more tricks at the end wins.  
+The **Humble–Nishiyama Game** changes the rules by flipping through a full deck of coin outcomes rather than stopping early. Each player earns one point (“**trick**”) every time their sequence appears in the deck. The player with more tricks at the end wins.  
 
 While this variation still displays nontransitive behavior, the **probability distributions differ subtly** from the original Penney’s Game. Sequences that were strong in the first version may not be as dominant here.
 
 ---
 
 ### 3. The New Card-Scoring Variant
-This project introduces a **third variant**, where the game is scored by **total cards won** rather than the number of tricks.  
-Each time a sequence appears, the player claims **all cards** that form that sequence. The player who collects the most cards in total wins.
+This project introduces a **third variant**, where the game is scored by **total cards won** rather than the number of tricks. Each time a sequence appears, the player claims **all cards** that form that sequence. The player who collects the most cards in total wins.
 
-This small rule change produces a **significant strategic shift**. Simulations suggest that the optimal countersequence for Player 2 differs from the one predicted by Penney’s Game or the Humble–Nishiyama Game. The change in scoring subtly alters which patterns are most rewarding, illustrating how different evaluation metrics can transform the underlying strategy landscape.
+This small rule change produces a **significant strategic shift**. Simulations suggest that the optimal countersequence for Player 2 differs from the one predicted by Penney’s Game or the Humble–Nishiyama Game. The change in scoring changes which patterns are most optimal, showing how different evaluation metrics can alter the best choice of sequence.
 
 ---
 

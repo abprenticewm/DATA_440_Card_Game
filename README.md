@@ -55,8 +55,8 @@ Once UV is installed, download the repository and then follow the steps below.
    ```powershell
    cd "path of directory"
 2. **Install UV dependencies**
-  ```uv sync 
+    ```uv sync 
 3. **You can then run the program**
-  ```uv run main.py
-
+    ```uv run main.py
+  
 The main program will prompt you to enter the amount of decks you would like to be generated, scored, and visualized. The results csv and the heatmaps will be automatically updated and can be found in the data folder in the repository. 
